@@ -144,8 +144,19 @@ exports.Prisma.SubscribersScalarFieldEnum = {
   lastNames: 'lastNames',
   phone: 'phone',
   isConfirmed: 'isConfirmed',
+  codeConfirm: 'codeConfirm',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VerificationCodeScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  code: 'code',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  subscriberEmail: 'subscriberEmail',
+  userAdminEmail: 'userAdminEmail'
 };
 
 exports.Prisma.UserAdminScalarFieldEnum = {
@@ -156,6 +167,7 @@ exports.Prisma.UserAdminScalarFieldEnum = {
   phone: 'phone',
   password: 'password',
   isConfirmed: 'isConfirmed',
+  codeConfirm: 'codeConfirm',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -188,6 +200,7 @@ exports.Prisma.ModelName = {
   skill: 'skill',
   experience: 'experience',
   subscribers: 'subscribers',
+  verificationCode: 'verificationCode',
   userAdmin: 'userAdmin',
   likeSubscribers: 'likeSubscribers'
 };

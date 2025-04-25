@@ -12,22 +12,36 @@ import {
 import { FollowersService } from './followers.service';
 import { CreateFollowerDto } from './dto/create-follower.dto';
 import { UpdateFollowerDto } from './dto/update-follower.dto';
+import { FollowerResponseDto } from './dto/follower-response.dto';
+import { CodeVerifyService } from 'src/code-verify/code-verify.service';
+import { CreateCodeVerifyDto } from 'src/code-verify/dto/create-code-verify.dto';
 
 @Controller('followers')
 export class FollowersController {
-  constructor(private readonly followersService: FollowersService) {}
+  constructor(
+    private readonly followersService: FollowersService,
+    private readonly codeVerify: CodeVerifyService,
+  ) {}
 
   @Post()
   async create(@Body() createFollowerDto: CreateFollowerDto) {
     const { email } = createFollowerDto;
+    const createCodeVerifyDto = { email } as CreateCodeVerifyDto;
     if (!email) {
       return new BadRequestException('Email is required');
     }
     const followerExists = await this.findOne(email);
     if (followerExists) {
-      return new BadRequestException('Follower already exists');
+      if (!followerExists.follower?.isConfirmed) {
+        return this.codeVerify.create(createCodeVerifyDto);
+      } else {
+        return this.followersService.create(createFollowerDto);
+      }
+      //return new BadRequestException('Follower already exists');
+    } else {
+      //await this.followersService.create(createFollowerDto);
+      return this.codeVerify.create(createCodeVerifyDto);
     }
-    return this.followersService.create(createFollowerDto);
   }
 
   @Get()
@@ -36,12 +50,14 @@ export class FollowersController {
   }
 
   @Get(':email')
-  async findOne(@Param('email') email: string) {
+  async findOne(
+    @Param('email') email: string,
+  ): Promise<{ exists: boolean; follower?: FollowerResponseDto }> {
     const follower = await this.followersService.findOne(email);
     if (!follower) {
-      return new BadRequestException('Follower not found');
+      return { exists: false };
     }
-    return follower;
+    return { exists: true, follower };
   }
 
   @Patch(':email')
@@ -50,7 +66,7 @@ export class FollowersController {
     @Body() updateFollowerDto: UpdateFollowerDto,
   ) {
     const follower = await this.findOne(email);
-    if (!follower) {
+    if (!follower.exists) {
       return new BadRequestException('Follower not found');
     }
     return this.followersService.update(email, updateFollowerDto);
@@ -58,10 +74,13 @@ export class FollowersController {
 
   @Delete(':email')
   async remove(@Param('email') email: string) {
-    const follower = await this.findOne(email);
-    if (follower instanceof BadRequestException) {
-      throw follower;
+    const subscriber = await this.findOne(email);
+    if (subscriber instanceof BadRequestException) {
+      throw subscriber;
     }
-    return this.followersService.remove(follower.email);
+    if (!subscriber.follower) {
+      throw new BadRequestException('Follower not found');
+    }
+    return this.followersService.remove(String(subscriber.follower.id));
   }
 }

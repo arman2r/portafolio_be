@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateFollowerDto {
   @IsEmail()
@@ -14,4 +20,7 @@ export class CreateFollowerDto {
   @IsString()
   @IsNotEmpty()
   phone: string;
+  @IsBoolean()
+  @IsOptional()
+  isConfirmed: boolean;
 }

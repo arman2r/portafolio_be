@@ -6,10 +6,12 @@ import {
   Param,
   NotFoundException,
   ConflictException,
+  UseGuards,
 } from '@nestjs/common';
 import { LikesService } from './likes.service';
 import { CreateLikeDto } from './dto/create-like.dto';
 import { prismaService } from 'src/prisma/prisma.service';
+import { JwtAuthGuard } from 'src/auth/auth.guard';
 
 @Controller('likes')
 export class LikesController {
@@ -18,11 +20,15 @@ export class LikesController {
     private readonly prisma: prismaService, // Inyectamos Prisma aquí
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() createLikeDto: CreateLikeDto) {
     // Validación en el controlador
     const subscriberExists = await this.prisma.subscribers.findUnique({
-      where: { id: createLikeDto.subscriberId },
+      where: {
+        id: createLikeDto.subscriberId,
+        isConfirmed: true,
+      },
     });
 
     if (!subscriberExists) {

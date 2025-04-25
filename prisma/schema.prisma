@@ -11,9 +11,9 @@ generator client {
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
-  extensions = [pgcrypto]
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  extensions   = [pgcrypto]
   relationMode = "prisma"
 }
 
@@ -43,10 +43,34 @@ model subscribers {
   names           String?
   lastNames       String?
   phone           String?
-  isConfirmed     Int?
+  isConfirmed     Boolean?          @default(false)
+  codeConfirm     Int?
   createdAt       DateTime          @default(now()) @db.Timestamptz
   updatedAt       DateTime          @updatedAt @db.Timestamptz
   likeSubscribers likeSubscribers[]
+
+  VerificationCode verificationCode[]
+}
+
+model verificationCode {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email     String   @unique
+  code      String   @db.VarChar(6) // Código de 6 dígitos
+  expiresAt DateTime @db.Timestamptz // Fecha de expiración
+  createdAt DateTime @default(now()) @db.Timestamptz
+
+  // Relación con subscriber (opcional)
+  subscriberEmail String? // Campo escalar
+  subscriber      subscribers? @relation(fields: [subscriberEmail], references: [email])
+
+  // Relación con userAdmin (opcional)
+  userAdminEmail String?
+  userAdmin      userAdmin? @relation(fields: [userAdminEmail], references: [email])
+
+  // Restricciones
+  @@unique([code, subscriberEmail, userAdminEmail]) // Código único por tipo de usuario
+  @@index([subscriberEmail])
+  @@index([userAdminEmail])
 }
 
 model userAdmin {
@@ -56,9 +80,12 @@ model userAdmin {
   lastNames   String?
   phone       String?
   password    String
-  isConfirmed Int?
+  isConfirmed Boolean? @default(false)
+  codeConfirm Int?
   createdAt   DateTime @default(now()) @db.Timestamptz
   updatedAt   DateTime @updatedAt @db.Timestamptz
+
+  VerificationCode verificationCode[]
 }
 
 model likeSubscribers {

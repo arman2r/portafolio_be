@@ -17,7 +17,7 @@ export class FollowersService {
         names: result.names ?? '',
         lastNames: result.lastNames ?? '',
         phone: result.phone ?? '',
-        isConfirmed: result.isConfirmed ?? 0,
+        isConfirmed: result.isConfirmed ?? false,
       }));
   }
 
