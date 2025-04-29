@@ -15,12 +15,14 @@ import { UpdateFollowerDto } from './dto/update-follower.dto';
 import { FollowerResponseDto } from './dto/follower-response.dto';
 import { CodeVerifyService } from 'src/code-verify/code-verify.service';
 import { CreateCodeVerifyDto } from 'src/code-verify/dto/create-code-verify.dto';
+import { AuthService } from 'src/auth/auth.service';
 
 @Controller('followers')
 export class FollowersController {
   constructor(
     private readonly followersService: FollowersService,
     private readonly codeVerify: CodeVerifyService,
+    private readonly authService: AuthService,
   ) {}
 
   @Post()
@@ -70,6 +72,22 @@ export class FollowersController {
       return new BadRequestException('Follower not found');
     }
     return this.followersService.update(email, updateFollowerDto);
+  }
+
+  @Post('follower-login')
+  async followerLogin(@Body() { email }: { email: string }) {
+    const follower = await this.findOne(email);
+    if (!follower.exists) {
+      return new BadRequestException('Follower not found');
+    }
+
+    const tokenData = await this.authService.generateSubscriberToken(email);
+
+    return {
+      success: true,
+      message: 'Autenticación exitosa',
+      ...tokenData,
+    };
   }
 
   @Delete(':email')

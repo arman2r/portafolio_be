@@ -8,6 +8,7 @@ import { LikesModule } from './likes/likes.module';
 import { CodeVerifyModule } from './code-verify/code-verify.module';
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { ContactModule } from './contact/contact.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
     MailerModule,
     CodeVerifyModule,
     AuthModule,
+    ContactModule,
   ],
   controllers: [],
   providers: [],

@@ -6,7 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // Configuración CORS
   app.enableCors({
-    origin: 'http://localhost:4200', // O usa '*' para desarrollo (no recomendado para producción)
+    origin: ['http://localhost:4200', 'https://ingrubio.com'], // O usa '*' para desarrollo (no recomendado para producción)
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     allowedHeaders: 'Content-Type, Accept, Authorization',
